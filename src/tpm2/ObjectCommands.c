@@ -228,6 +228,34 @@ TPM2_LoadExternal(
 	}
     return result;
 }
+TPM_RC
+TPM2_LoadExternal_SW(
+		     INT32 inBufSize,			// IN: size of marshalled input parameters
+		     BYTE *inBuf,			// IN: marshalled input parameters
+		     INT32 *outBufSize,			// OUTPUT: size of marshalled output parameters
+		     BYTE *outBuf			// OUTPUT: marshalled output parameters
+		    )
+{
+	TPM_RC              result = TPM_RC_SUCCESS;
+	LoadExternal_In     in;
+	LoadExternal_Out    out;
+
+	in.inPrivate.size = 0;
+	in.hierarchy = TPM_RH_OWNER;
+
+	result = TPM2B_PUBLIC_Unmarshal(&in.inPublic, &inBuf, &inBufSize, FALSE);
+	if (result != TPM_RC_SUCCESS)
+		return result;
+
+	result = TPM2_LoadExternal(&in, &out);
+	if (result != TPM_RC_SUCCESS)
+		return result;
+
+	outBuf += TPM_HANDLE_Marshal(&out.objectHandle, &outBuf, NULL);
+	outBuf += TPM2B_NAME_Marshal(&out.name, &outBuf, NULL);
+
+	return TPM_RC_SUCCESS;
+}
 #endif // CC_LoadExternal
 #include "Tpm.h"
 #include "ReadPublic_fp.h"
@@ -334,6 +362,45 @@ TPM2_MakeCredential(
     SecretToCredential(&in->credential, &in->objectName.b, &data.b,
 		       object, &out->credentialBlob);
     return TPM_RC_SUCCESS;
+}
+
+#include "tpm2/Marshal_fp.h"
+
+TPM_RC
+TPM2_MakeCredential_SW(
+		       INT32 inBufSize,			// IN: size of marshalled input parameters
+		       BYTE *inBuf,			// IN: marshalled input parameters
+		       INT32 *outBufSize,		// OUTPUT: size of marshalled output parameters
+		       BYTE *outBuf			// OUTPUT: marshalled output parameters
+		      )
+{
+	TPM_RC              result = TPM_RC_SUCCESS;
+	MakeCredential_In   in;
+	MakeCredential_Out  out;
+
+	result = TPM_HANDLE_Unmarshal(&in.handle, &inBuf, &inBufSize);
+	if (result != TPM_RC_SUCCESS)
+		return result;
+
+	result = TPM2B_DIGEST_Unmarshal(&in.credential, &inBuf, &inBufSize);
+	if (result != TPM_RC_SUCCESS)
+		return result;
+
+	result = TPM2B_NAME_Unmarshal(&in.objectName, &inBuf, &inBufSize);
+	if (result != TPM_RC_SUCCESS)
+		return result;
+
+	result = TPM2_MakeCredential(&in, &out);
+	if (result != TPM_RC_SUCCESS)
+		return result;
+
+	*outBufSize = 0;
+	*outBufSize += TPM2B_ID_OBJECT_Marshal(&out.credentialBlob, &outBuf,
+					       NULL);
+	*outBufSize += TPM2B_ENCRYPTED_SECRET_Marshal(&out.secret, &outBuf,
+						      NULL);
+
+	return TPM_RC_SUCCESS;
 }
 #endif // CC_MakeCredential
 #include "Tpm.h"

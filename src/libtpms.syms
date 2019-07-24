@@ -17,6 +17,10 @@ LIBTPMS_0.5.1 {
 	TPM_Free;
 	TPM_Malloc;
 	TPM_Realloc;
+	TPM2_Startup;
+	TPM2_LoadExternal_SW;
+	TPM2_MakeCredential_SW;
+	TPM2_FlushContext;
     local:
 	*;
 };
@@ -34,6 +38,10 @@ LIBTPMS_0.6.0 {
 	TPMLIB_SetDebugPrefix;
 	TPMLIB_SetState;
 	TPMLIB_ValidateState;
+	TPM2_Startup;
+	TPM2_LoadExternal_SW;
+	TPM2_MakeCredential_SW;
+	TPM2_FlushContext;
     local:
 	*;
 } LIBTPMS_0.5.1;

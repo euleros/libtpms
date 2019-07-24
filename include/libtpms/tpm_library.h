@@ -165,6 +165,22 @@ TPM_RESULT TPMLIB_SetState(enum TPMLIB_StateType st,
 TPM_RESULT TPMLIB_GetState(enum TPMLIB_StateType st,
                            unsigned char **buffer, uint32_t *buflen);
 
+int
+TPM2_LoadExternal_SW(
+		     int32_t inBufSize,			// IN: size of marshalled input parameters
+		     BYTE *inBuf,			// IN: marshalled input parameters
+		     int32_t *outBufSize,			// OUTPUT: size of marshalled output parameters
+		     BYTE *outBuf			// OUTPUT: marshalled output parameters
+		    );
+
+int
+TPM2_MakeCredential_SW(
+		       int32_t inBufSize,			// IN: size of marshalled input parameters
+		       BYTE *inBuf,			// IN: marshalled input parameters
+		       int32_t *outBufSize,		// OUTPUT: size of marshalled output parameters
+		       BYTE *outBuf			// OUTPUT: marshalled output parameters
+		      );
+
 #ifdef __cplusplus
 }
 #endif
